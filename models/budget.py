@@ -38,12 +38,12 @@ class Account():
 
     def add_transaction(self, comment, transaction_type, amount):
         """Record a transaction on the account transaction history and update the current balance"""
-        date = datetime.now().strftime('%Y-%m-%d')
         try:
             self.update_current_balance(transaction_type, amount)
         except TypeError:
             print('Amount must be a number')
         else:
+            date = datetime.now().strftime('%Y-%m-%d')
             transaction = (date, self.name, comment, transaction_type, amount)
             self.transaction_history.append(transaction)
         
