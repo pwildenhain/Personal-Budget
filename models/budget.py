@@ -19,6 +19,12 @@ class Account():
         self.current_balance = current_balance
         self.transaction_history = transaction_history
 
+    def update_budgeted_amount(self, new_budgeted_amount):
+        try:
+            self.budgeted_amount = new_budgeted_amount
+        except TypeError:
+            'Amount entered must be a number'
+
     def update_current_balance(self, transaction_type, amount):
         """When a transaction is recorded, update the current balance left on the account"""
         if transaction_type == 'debit':
@@ -29,9 +35,13 @@ class Account():
     def add_transaction(self, comment, transaction_type, amount):
         """Record a transaction on the account transaction history and update the current balance"""
         date = datetime.now().strftime('%Y-%m-%d')
-        if type(amount) not in ['float', 'int']:
-            return "Amount entered must be a number'
-        self.update_current_balance(transaction_type, amount)
-        transaction = (date, self.name, comment, transaction_type, amount)
-        self.transaction_history.append(transaction)
+        try:
+            self.update_current_balance(transaction_type, amount)
+        except TypeError:
+            'Amount entered must be a number'
+        else:
+            transaction = (date, self.name, comment, transaction_type, amount)
+            self.transaction_history.append(transaction)
+        
+        
 
