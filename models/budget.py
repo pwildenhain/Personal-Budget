@@ -32,7 +32,7 @@ class Account():
     def update_current_balance(self, transaction_type, amount):
         """When a transaction is recorded, update the current balance left on the account"""
         if transaction_type == 'debit':
-            self.current_balance += -amount
+            self.current_balance -= amount
         elif transaction_type == 'credit':
             self.current_balance += amount
 
@@ -57,6 +57,10 @@ class Budget():
     def __init__(self, accounts):
         self.accounts = accounts
 
+    def add_account(self, **kwargs):
+        """Add an account to the existing budget accounts"""
+        self.accounts[kwargs['name']] = Account(**kwargs)
+    
     def display_budget_summary(self):
         """Display the current balance compared to the budgeted amount for each account"""
         print('category: account: budgeted amount: current balance')
