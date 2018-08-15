@@ -55,5 +55,16 @@ class Budget():
     """
 
     def __init__(self, accounts):
-        self.accounts = accounts    
+        self.accounts = accounts
+
+    def display_budget_summary(self):
+        """Display the current balance compared to the budgeted amount for each account"""
+        print('category: account: budgeted amount: current balance')
+        for account in self.accounts.keys():
+            account_obj = self.accounts[account]
+            category = account_obj.category
+            budgeted_amount = account_obj.budgeted_amount
+            balance = account_obj.current_balance
+            name = account_obj.name.title()
+            print(f'{category}: {name}: {budgeted_amount}: {balance}')   
 
