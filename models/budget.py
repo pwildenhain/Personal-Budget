@@ -64,7 +64,7 @@ class Budget():
             raise Exception('That category already exists')
         self.categories.append(name)
 
-    def add_account(self, category, **kwargs):
+    def add_account(self, **kwargs):
         """Add an account to the existing budget accounts"""
         if kwargs['category'] not in self.categories:
             self.add_category(kwargs['category'])
@@ -79,7 +79,12 @@ class Budget():
             self.accounts[destination].add_transaction(f'Transfer from {origin}', 'credit', amount)
         except KeyError:
             print(f'{destination} is not an account in the budget')
-  
+
+    def payday(self):
+        for account in self.accounts:
+            account_obj = self.accounts[account]
+            account_obj.add_transaction('Payday', 'credit', account_obj.budgeted_amount)
+
     def display_summary(self):
         """Display the current balance compared to the budgeted amount for each account"""
         print('category: account: budgeted amount: current balance')
