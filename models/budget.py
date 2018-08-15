@@ -51,14 +51,23 @@ class Budget():
     """A bi-weekly personal budget
 
     Attributes:
+        categories (list(str)): A list of categories that belong to one or more accounts
         accounts (dict(:obj:)): A dict of Account() objects
     """
 
-    def __init__(self, accounts = {}):
+    def __init__(self, accounts = {}, categories = []):
         self.accounts = accounts
+        self.categories = categories
 
-    def add_account(self, **kwargs):
+    def add_category(self, name):
+        if name in self.categories:
+            raise Exception('That category already exists')
+        self.categories.append(name)
+
+    def add_account(self, category, **kwargs):
         """Add an account to the existing budget accounts"""
+        if kwargs['category'] not in self.categories:
+            self.add_category(kwargs['category'])
         self.accounts[kwargs['name']] = Account(**kwargs)
  
     def transfer_money(self, origin, destination, amount):
@@ -74,7 +83,7 @@ class Budget():
     def display_summary(self):
         """Display the current balance compared to the budgeted amount for each account"""
         print('category: account: budgeted amount: current balance')
-        for account in self.accounts.keys():
+        for account in self.accounts:
             account_obj = self.accounts[account]
             category = account_obj.category
             budgeted_amount = account_obj.budgeted_amount
