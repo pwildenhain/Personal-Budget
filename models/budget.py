@@ -54,14 +54,24 @@ class Budget():
         accounts (dict(:obj:)): A dict of Account() objects
     """
 
-    def __init__(self, accounts):
+    def __init__(self, accounts = {}):
         self.accounts = accounts
 
     def add_account(self, **kwargs):
         """Add an account to the existing budget accounts"""
         self.accounts[kwargs['name']] = Account(**kwargs)
-    
-    def display_budget_summary(self):
+ 
+    def transfer_money(self, origin, destination, amount):
+        try:
+            self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
+        except KeyError:
+            print(f'{origin} is not an account in the budget')
+        try:
+            self.accounts[destination].add_transaction(f'Transfer from {origin}', 'credit', amount)
+        except KeyError:
+            print(f'{destination} is not an account in the budget')
+  
+    def display_summary(self):
         """Display the current balance compared to the budgeted amount for each account"""
         print('category: account: budgeted amount: current balance')
         for account in self.accounts.keys():
