@@ -5,6 +5,7 @@ class Account():
     """An account within a personal budget
 
     Attributes:
+        id (int): Account id in SQLite db
         name (str): Display name
         category (str): Budget category
         budgeted_amount (int): Bi-weekly allocated amount
@@ -12,7 +13,8 @@ class Account():
         transaction_history (list(tuple)): Every transaction recorded on this account
     """
 
-    def __init__(self, name, category, budgeted_amount, current_balance, transaction_history):
+    def __init__(self, id, name, category, budgeted_amount, current_balance, transaction_history):
+        self.id = id
         self.name = name
         self.category = category
         self.budgeted_amount = budgeted_amount
