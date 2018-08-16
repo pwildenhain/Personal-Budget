@@ -7,7 +7,6 @@ class Account():
     """An account within a personal budget
 
     Attributes:
-        id (int): Account id in SQLite db
         name (str): Display name
         category (str): Budget category
         budgeted_amount (int): Bi-weekly allocated amount
@@ -15,8 +14,7 @@ class Account():
         transaction_history (list(tuple)): Every transaction recorded on this account
     """
 
-    def __init__(self, id, name, category, budgeted_amount, current_balance, transaction_history):
-        self.id = id
+    def __init__(self, name, category, budgeted_amount, current_balance, transaction_history):
         self.name = name
         self.category = category
         self.budgeted_amount = budgeted_amount
@@ -67,14 +65,13 @@ class Budget():
         new_account = kwargs['name']
         self.accounts[new_account] = Account(**kwargs)
         new_account_obj = self.accounts[new_account]
-        insert_account = [(
-            new_account_obj.id, 
+        insert_account = [( 
             new_account_obj.category,
             new_account_obj.name,
             new_account_obj.budgeted_amount,
             new_account_obj.current_balance
             )]
-        labels = ['id', 'category', 'name', 'budgeted_amount', 'balance']
+        labels = ['category', 'name', 'budgeted_amount', 'balance']
         insert_df = DataFrame.from_records(insert_account, columns=labels)
         conn = connect('data/budget.db')
         insert_df.to_sql("budget_summary", conn, if_exists='append', index=False)
