@@ -1,5 +1,7 @@
 # Import modules
 from datetime import datetime
+from sqlite3 import connect
+from pandas import DataFrame, read_sql
 # Define classes
 class Account():
     """An account within a personal budget
@@ -62,8 +64,22 @@ class Budget():
 
     def add_account(self, **kwargs):
         """Add an account to the existing budget accounts"""
-        self.accounts[kwargs['name']] = Account(**kwargs)
- 
+        new_account = kwargs['name']
+        self.accounts[new_account] = Account(**kwargs)
+        new_account_obj = self.accounts[new_account]
+        insert_account = [(
+            new_account_obj.id, 
+            new_account_obj.category,
+            new_account_obj.name,
+            new_account_obj.budgeted_amount,
+            new_account_obj.current_balance
+            )]
+        labels = ['id', 'category', 'name', 'budgeted_amount', 'balance']
+        insert_df = DataFrame.from_records(insert_account, columns=labels)
+        conn = connect('data/budget.db')
+        insert_df.to_sql("budget_summary", conn, if_exists='append', index=False)
+        conn.close()
+
     def transfer_money(self, origin, destination, amount):
         try:
             self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
@@ -81,12 +97,19 @@ class Budget():
 
     def display_summary(self):
         """Display the current balance compared to the budgeted amount for each account"""
-        print('category: account: budgeted amount: current balance')
-        for account in self.accounts:
-            account_obj = self.accounts[account]
-            category = account_obj.category
-            budgeted_amount = account_obj.budgeted_amount
-            balance = account_obj.current_balance
-            name = account_obj.name.title()
-            print(f'{category}: {name}: {budgeted_amount}: {balance}')   
+        conn = connect('data/budget.db')
+        display_df = read_sql('''
+        SELECT 
+        category as Category
+        , name as Account
+        , budgeted_amount as "Budgeted"
+        , balance as Balance
+        FROM 
+        budget_summary 
+        ORDER BY
+        category, budgeted_amount DESC''',
+        conn
+        )
+        conn.close()
+        print(display_df)
 
