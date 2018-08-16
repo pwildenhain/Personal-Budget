@@ -11,15 +11,13 @@ class Account():
         category (str): Budget category
         budgeted_amount (int): Bi-weekly allocated amount
         current_balance (int): Current surplus/shortage of allocated amount
-        transaction_history (list(tuple)): Every transaction recorded on this account
     """
 
-    def __init__(self, name, category, budgeted_amount, current_balance, transaction_history):
+    def __init__(self, name, category, budgeted_amount, current_balance):
         self.name = name
         self.category = category
         self.budgeted_amount = budgeted_amount
         self.current_balance = current_balance
-        self.transaction_history = transaction_history
 
     def update_budgeted_amount(self, new_budgeted_amount):
         """Update the current budgeted amount for the account"""
@@ -30,6 +28,13 @@ class Account():
                 return print('Amount must be greater than zero')
         except TypeError:
             print('Amount must be a number')
+        else:
+            conn = connect('data/budget.db')
+            cursor = conn.cursor() 
+            cursor.execute('''UPDATE budget_summary SET budgeted_amount = ? WHERE name = ?''',
+                (self.budgeted_amount, self.name)) 
+            conn.commit()
+            conn.close()
 
     def update_current_balance(self, transaction_type, amount):
         """When a transaction is recorded, update the current balance left on the account"""
@@ -37,6 +42,12 @@ class Account():
             self.current_balance -= amount
         elif transaction_type == 'credit':
             self.current_balance += amount
+        conn = connect('data/budget.db')
+        cursor = conn.cursor() 
+        cursor.execute('''UPDATE budget_summary SET current_balance = ? WHERE name = ?''',
+            (self.current_balance, self.name)) 
+        conn.commit()
+        conn.close()
 
     def add_transaction(self, comment, transaction_type, amount):
         """Record a transaction on the account transaction history and update the current balance"""
@@ -46,8 +57,12 @@ class Account():
             print('Amount must be a number')
         else:
             date = datetime.now().strftime('%Y-%m-%d')
-            transaction = (date, self.name, comment, transaction_type, amount)
-            self.transaction_history.append(transaction)
+            transaction = [(date, self.name, comment, transaction_type, amount)]
+            labels = ['date', 'name', 'comment', 'transaction_type', 'amount']
+            tx_df = DataFrame.from_records(transaction, columns=labels)
+            conn = connect('data/budget.db')
+            tx_df.to_sql("transaction_history", conn, if_exists='append', index=False)
+            conn.close()
         
 class Budget():
     """A bi-weekly personal budget
@@ -71,7 +86,7 @@ class Budget():
             new_account_obj.budgeted_amount,
             new_account_obj.current_balance
             )]
-        labels = ['category', 'name', 'budgeted_amount', 'balance']
+        labels = ['category', 'name', 'budgeted_amount', 'current_balance']
         insert_df = DataFrame.from_records(insert_account, columns=labels)
         conn = connect('data/budget.db')
         insert_df.to_sql("budget_summary", conn, if_exists='append', index=False)
@@ -100,7 +115,7 @@ class Budget():
         category as Category
         , name as Account
         , budgeted_amount as "Budgeted"
-        , balance as Balance
+        , current_balance as Balance
         FROM 
         budget_summary 
         ORDER BY
