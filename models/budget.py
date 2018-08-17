@@ -13,12 +13,12 @@ class Account():
         current_balance (int): Current surplus/shortage of allocated amount
     """
 
-    def __init__(self, name, category, budgeted_amount, current_balance):
+    def __init__(self, name, category, budgeted_amount):
         self.name = name
         self.category = category
         self.budgeted_amount = budgeted_amount
-        self.current_balance = current_balance
-
+        self.current_balance = budgeted_amount
+    
     def update_budgeted_amount(self, new_budgeted_amount):
         """Update the current budgeted amount for the account"""
         try:
@@ -71,9 +71,8 @@ class Budget():
         accounts (dict(:obj:)): A dict of Account() objects
     """
 
-    def __init__(self, accounts = {}, categories = []):
+    def __init__(self, accounts = {}):
         self.accounts = accounts
-        self.categories = categories
 
     def add_account(self, **kwargs):
         """Add an account to the existing budget accounts"""
@@ -93,6 +92,7 @@ class Budget():
         conn.close()
 
     def transfer_money(self, origin, destination, amount):
+        """Transfer a part of the balance from one account to another"""
         try:
             self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
         except KeyError:
@@ -103,6 +103,7 @@ class Budget():
             print(f'{destination} is not an account in the budget')
 
     def payday(self):
+        """Add the budgeted amount to each account's current balance"""
         for account in self.accounts:
             account_obj = self.accounts[account]
             account_obj.add_transaction('Payday', 'credit', account_obj.budgeted_amount)
@@ -125,3 +126,5 @@ class Budget():
         conn.close()
         print(display_df)
 
+    def display_accounts(self):
+        return ", ".join(self.accounts.keys())
