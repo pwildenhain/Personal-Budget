@@ -13,11 +13,11 @@ class Account():
         current_balance (int): Current surplus/shortage of allocated amount
     """
 
-    def __init__(self, name, category, budgeted_amount):
+    def __init__(self, name, category, budgeted_amount, current_balance):
         self.name = name
         self.category = category
         self.budgeted_amount = budgeted_amount
-        self.current_balance = budgeted_amount
+        self.current_balance = current_balance
     
     def update_budgeted_amount(self, new_budgeted_amount):
         """Update the current budgeted amount for the account"""
@@ -115,7 +115,7 @@ class Budget():
         SELECT 
         category as Category
         , name as Account
-        , budgeted_amount as "Budgeted"
+        , budgeted_amount as Budgeted
         , current_balance as Balance
         FROM 
         budget_summary 
@@ -124,7 +124,10 @@ class Budget():
         conn
         )
         conn.close()
+        # Add line padding around DataFrame
+        print()
         print(display_df)
+        print()
 
     def display_accounts(self):
         return ", ".join(self.accounts.keys())
