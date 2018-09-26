@@ -22,8 +22,9 @@ while True:
     print('d) Tranfer between accounts')
     print('e) Add income to an account')
     print('f) Record a payday')
-    print('g) Exit the program')
-    action = input('Type a, b, c, d, e or f: ').lower()
+    print('g) View transaction history')
+    print('h) Exit the program')
+    action = input('Type a, b, c, d, e, f, g or h: ').lower()
     if action == 'a':
         account = ''
         while account not in budget.accounts.keys():
@@ -141,6 +142,18 @@ while True:
         elif confirm == 'no':
             continue
     if action == 'g':
+        while True:
+            try:
+                transactions = int(input('Number of transactions to view: '))
+            except ValueError:
+                print('Number of transactions must be an integer')
+                continue
+            else:
+                break
+        print()
+        budget.display_history(transactions)
+        print()
+    if action == 'h':
         raise SystemExit
     else:
         continue
