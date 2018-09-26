@@ -13,6 +13,8 @@ for account in accounts.itertuples():
         account.budgeted_amount, account.current_balance)
     accounts_dict[account.name] = insert_account
 budget = Budget(accounts_dict)
+# Display summary before asking for actions
+budget.display_summary()
 # Different actions to update the budget
 while True:
     print('What would you like to do?')
@@ -150,9 +152,7 @@ while True:
                 continue
             else:
                 break
-        print()
         budget.display_history(transactions)
-        print()
     if action == 'h':
         raise SystemExit
     else:
