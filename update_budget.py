@@ -20,8 +20,9 @@ while True:
     print('b) Add an account')
     print('c) Update account budgeted amount')
     print('d) Tranfer between accounts')
-    print('e) Record a payday')
-    print('f) Exit the program')
+    print('e) Add income to an account')
+    print('f) Record a payday')
+    print('g) Exit the program')
     action = input('Type a, b, c, d, e or f: ').lower()
     if action == 'a':
         account = ''
@@ -111,6 +112,22 @@ while True:
         budget.transfer_money(from_account, to_account, transfer_amount)
         budget.display_summary()
     if action == 'e':
+        account = ''
+        while account not in budget.accounts.keys():
+            print(budget.display_accounts())
+            account = input('Choose one of the above accounts: ')
+        while True:
+            try:
+                amount = int(input('Income amount: '))
+            except ValueError:
+                print('Income amount must be an integer')
+                continue
+            else:
+                break
+        comment = input('Income comment: ')
+        budget.accounts[account].add_transaction(comment, 'credit', amount)
+        budget.display_summary()
+    if action == 'f':
         confirm = ''
         while confirm not in ['yes', 'no']:
             confirm = input(
@@ -123,7 +140,7 @@ while True:
             continue
         elif confirm == 'no':
             continue
-    if action == 'f':
+    if action == 'g':
         raise SystemExit
     else:
         continue
