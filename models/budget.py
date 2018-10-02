@@ -132,10 +132,10 @@ class Budget():
     def display_accounts(self):
         return ", ".join(self.accounts.keys())
     
-    def display_history(self, transactions):
+    def display_history(self, by_account, transactions):
         """Display the last n transactions from the transaction_history table"""
         conn = connect('data/budget.db')
-        display_df = read_sql(f'''
+        display_df = read_sql('''
         SELECT 
         date as Date
         , name as Account
@@ -146,11 +146,14 @@ class Budget():
         transaction_history 
         WHERE
         comment != 'Payday'
+        and
+        name in (?)
         ORDER BY
         date DESC
         LIMIT
-        {transactions}''',
-        conn
+        ?''',
+        conn,
+        params = [by_account, transactions]
         )
         conn.close()
         # Add line padding around DataFrame

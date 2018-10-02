@@ -107,11 +107,11 @@ while True:
         from_account = ''
         while from_account not in budget.accounts.keys():
             print(budget.display_accounts())
-            from_account = input(f'Choose one of the above accounts to transfer ${amount} from: ')
+            from_account = input(f'Choose one of the above accounts to transfer ${transfer_amount} from: ')
         to_account = ''
         while to_account not in budget.accounts.keys():
             print(budget.display_accounts())
-            to_account = input(f'Choose one of the above accounts to transfer ${amount} to: ')
+            to_account = input(f'Choose one of the above accounts to transfer ${transfer_amount} to: ')
         budget.transfer_money(from_account, to_account, transfer_amount)
         budget.display_summary()
     if action == 'e':
@@ -152,7 +152,11 @@ while True:
                 continue
             else:
                 break
-        budget.display_history(transactions)
+        account = ''
+        while account not in budget.accounts.keys():
+            print(budget.display_accounts())
+            account = input('Choose one of the above accounts: ')
+        budget.display_history(account, transactions)
     if action == 'h':
         raise SystemExit
     else:
