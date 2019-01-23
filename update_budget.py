@@ -13,7 +13,8 @@ for account in accounts.itertuples():
         account.budgeted_amount, account.current_balance)
     accounts_dict[account.name] = insert_account
 budget = Budget(accounts_dict)
-# Display summary before asking for actions
+# Display summary and history before asking for actions
+budget.display_history()
 budget.display_summary()
 # Different actions to update the budget
 while True:
