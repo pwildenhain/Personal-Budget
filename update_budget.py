@@ -75,26 +75,9 @@ while True:
             except ValueError:
                 print('New budgeted amount must be an integer')
                 continue
-            else:
-                budget.accounts[account].update_budgeted_amount(new_budgeted_amount)
-                update_comment = 'Update budgeted amount'
-                if new_budgeted_amount > current_budgeted_amount:
-                    budget.accounts[account].add_transaction(
-                        comment = update_comment,
-                        transaction_type = 'credit',
-                        amount = new_budgeted_amount - current_budgeted_amount
-                    )
-                elif current_budgeted_amount > new_budgeted_amount:
-                    budget.accounts[account].add_transaction(
-                        comment = update_comment,
-                        transaction_type = 'debit',
-                        amount = current_budgeted_amount - new_budgeted_amount
-                    )
-                else:
-                    print("You silly goose, those are the same numbers")
-                    continue
-                budget.display_summary()
-                break
+            budget.accounts[account].update_budgeted_amount(new_budgeted_amount)
+            budget.display_summary()
+            break
         continue
     if action == 'd':
         while True:
