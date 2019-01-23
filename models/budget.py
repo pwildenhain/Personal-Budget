@@ -22,7 +22,7 @@ class Account():
     def update_budgeted_amount(self, new_budgeted_amount):
         """Update the current budgeted amount for the account"""
         try:
-            if new_budgeted_amount > 0:
+            if new_budgeted_amount >= 0:
                 self.budgeted_amount = new_budgeted_amount
             else:
                 return print('Amount must be greater than zero')
