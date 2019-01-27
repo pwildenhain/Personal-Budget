@@ -1,4 +1,5 @@
 # Import modules
+from models.validate_user import ensure_positive_integer_from_user
 from datetime import datetime
 from sqlite3 import connect
 from pandas import DataFrame, read_sql
@@ -21,20 +22,14 @@ class Account():
     
     def update_budgeted_amount(self, new_budgeted_amount):
         """Update the current budgeted amount for the account"""
-        try:
-            if new_budgeted_amount >= 0:
-                self.budgeted_amount = new_budgeted_amount
-            else:
-                return print('Amount must be greater than zero')
-        except TypeError:
-            print('Amount must be a number')
-        else:
-            conn = connect('data/budget.db')
-            cursor = conn.cursor() 
-            cursor.execute('''UPDATE budget_summary SET budgeted_amount = ? WHERE name = ?''',
-                (self.budgeted_amount, self.name)) 
-            conn.commit()
-            conn.close()
+        self.budgeted_amount = new_budgeted_amount
+
+        conn = connect('data/budget.db')
+        cursor = conn.cursor() 
+        cursor.execute('''UPDATE budget_summary SET budgeted_amount = ? WHERE name = ?''',
+            (self.budgeted_amount, self.name)) 
+        conn.commit()
+        conn.close()
 
     def update_current_balance(self, transaction_type, amount):
         """When a transaction is recorded, update the current balance left on the account"""
@@ -131,6 +126,22 @@ class Budget():
         print(display_df)
         print()
     
+    @staticmethod
+    def ensure_positive_integer_from_user():
+        while True:
+            try:
+                num_input = int(input('How much would you like to transfer: '))
+            except ValueError:
+                print('Numbers only please :-)')
+                continue
+            
+            if num_input < 0:
+                print('Positive numbers only please ;-)')
+                continue
+            else:
+                break
+        return num_input
+
     def user_select_account(self):
         """Prompt user to select an account from list of current accounts"""
         account = ''
@@ -142,14 +153,7 @@ class Budget():
     def user_add_transaction(self):
         """Allow user to add a new transaction"""
         account = self.user_select_account()
-        while True:
-            try:
-                amount = int(input('Transaction amount: '))
-            except ValueError:
-                print('Transaction amount must be an integer')
-                continue
-            else:
-                break
+        amount = ensure_positive_integer_from_user()
         comment = input('Transaction comment: ')
         self.accounts[account].add_transaction(comment, 'debit', amount)
         self.display_summary()
@@ -175,18 +179,19 @@ class Budget():
         """Allow user to add account to budget """
         name = input("Name of this account: ")
         category = input(f"What category does {name} fall under?: ")
-        while True:
-            try:
-                budgeted_amount = int(input(f"How much would you like to budget for {name}: "))
-            except ValueError:
-                print('Budgeted amount must be an integer')
-                continue
-            else:
-                break
+        budgeted_amount = ensure_positive_integer_from_user()
         self.add_account(
             name = name, category = category,
             budgeted_amount = budgeted_amount,
             current_balance = budgeted_amount)
+        self.display_summary()
+
+    def user_update_budgeted_amount(self):
+        account = self.user_select_account()
+        current_budgeted_amount = self.accounts[account].budgeted_amount
+        print(f'The current budgeted amount for {account} is {current_budgeted_amount}')
+        new_budgeted_amount = ensure_positive_integer_from_user()
+        self.accounts[account].update_budgeted_amount(new_budgeted_amount)
         self.display_summary()
 
     def transfer_money(self, origin, destination, amount):
