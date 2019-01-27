@@ -201,7 +201,7 @@ class Budget():
         account = self.user_select_account()
         current_budgeted_amount = self.accounts[account].budgeted_amount
         print(f'The current budgeted amount for {account} is {current_budgeted_amount}')
-        new_budgeted_amount = Budget.ensure_positive_integer_from_user('New budgeted amount:')
+        new_budgeted_amount = Budget.ensure_positive_integer_from_user('New budgeted amount')
         self.accounts[account].update_budgeted_amount(new_budgeted_amount)
         self.display_summary()
 

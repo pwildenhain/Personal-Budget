@@ -17,134 +17,34 @@ budget = Budget(accounts_dict)
 budget.display_history()
 budget.display_summary()
 # Different actions to update the budget
+user_actions = [
+    budget.user_add_transaction,
+    budget.user_add_account,
+    budget.user_update_budgeted_amount,
+    budget.user_transfer_between_accounts,
+    budget.user_add_income_to_account,
+    budget.user_record_payday,
+    budget.user_view_transaction_history,
+    Budget.user_exit_program
+]
+
+user_action_names = []
+for action in user_actions:
+    display_name = action.__name__.replace('user_', '').replace('_', ' ').title()
+    user_action_names.append(display_name)
+
 while True:
-    print('What would you like to do?')
-    print('a) Add a transaction')
-    print('b) Add an account')
-    print('c) Update account budgeted amount')
-    print('d) Tranfer between accounts')
-    print('e) Add income to an account')
-    print('f) Record a payday')
-    print('g) View transaction history')
-    print('h) Exit the program')
-    action = input('Type a, b, c, d, e, f, g or h: ').lower()
-    if action == 'a':
-        account = ''
-        while account not in budget.accounts.keys():
-            print(budget.display_accounts())
-            account = input('Choose one of the above accounts: ')
-        while True:
-            try:
-                amount = int(input('Transaction amount: '))
-            except ValueError:
-                print('Transaction amount must be an integer')
-                continue
-            else:
-                break
-        comment = input('Transaction comment: ')
-        budget.accounts[account].add_transaction(comment, 'debit', amount)
-        budget.display_summary()
-        continue
-    if action == 'b':
-        name = input("Name of this account: ")
-        category = input(f"What category does {name} fall under?: ")
-        while True:
-            try:
-                budgeted_amount = int(input(f"How much would you like to budget for {name}: "))
-            except ValueError:
-                print('Budgeted amount must be an integer')
-                continue
-            else:
-                break
-        budget.add_account(
-            name = name, category = category,
-            budgeted_amount = budgeted_amount,
-            current_balance = budgeted_amount)
-        budget.display_summary()
-        continue
-    if action == 'c':
-        account = ''
-        while account not in budget.accounts.keys():
-            print(budget.display_accounts())
-            account = input('Choose one of the above accounts: ')
-        current_budgeted_amount = budget.accounts[account].budgeted_amount
-        print(f'The current budgeted amount for {account} is {current_budgeted_amount}')
-        while True:
-            try:
-                new_budgeted_amount = int(input('Enter the new budgeted amount: '))
-            except ValueError:
-                print('New budgeted amount must be an integer')
-                continue
-            budget.accounts[account].update_budgeted_amount(new_budgeted_amount)
-            budget.display_summary()
-            break
-        continue
-    if action == 'd':
-        while True:
-            try:
-                transfer_amount = int(input('How much would you like to transfer: '))
-                break
-            except ValueError:
-                print('Numbers only please :-)')
-                continue
-            print()
-        from_account = ''
-        while from_account not in budget.accounts.keys():
-            print(budget.display_accounts())
-            from_account = input(f'Choose one of the above accounts to transfer ${transfer_amount} from: ')
-        to_account = ''
-        while to_account not in budget.accounts.keys():
-            print(budget.display_accounts())
-            to_account = input(f'Choose one of the above accounts to transfer ${transfer_amount} to: ')
-        budget.transfer_money(from_account, to_account, transfer_amount)
-        budget.display_summary()
-    if action == 'e':
-        account = ''
-        while account not in budget.accounts.keys():
-            print(budget.display_accounts())
-            account = input('Choose one of the above accounts: ')
-        while True:
-            try:
-                amount = int(input('Income amount: '))
-            except ValueError:
-                print('Income amount must be an integer')
-                continue
-            else:
-                break
-        comment = input('Income comment: ')
-        budget.accounts[account].add_transaction(comment, 'credit', amount)
-        budget.display_summary()
-    if action == 'f':
-        confirm = ''
-        while confirm not in ['yes', 'no']:
-            confirm = input(
-                'Are you sure you want to record a payday? Type yes or no: '
-            ).lower()
-        if confirm == 'yes':
-            print('$$$ *Cha-Ching* $$$')
-            budget.payday()
-            budget.display_summary()
-            continue
-        elif confirm == 'no':
-            continue
-    if action == 'g':
-        while True:
-            try:
-                transactions = int(input('Number of transactions to view: '))
-            except ValueError:
-                print('Number of transactions must be an integer')
-                continue
-            else:
-                break
-        account = ''
-        while account not in budget.accounts.keys():
-            print(budget.display_accounts())
-            account = input('Choose one of the above accounts: ')
-        budget.display_history(account, transactions)
-    if action == 'h':
-        raise SystemExit
+    for num, action in enumerate(user_action_names):
+        print(f'{num}) {action}')
+
+    choice = Budget.ensure_positive_integer_from_user('Select an option')
+
+    if choice in range(len(user_action_names)):
+        chosen_func = user_actions[choice]
+        chosen_func()
     else:
         continue
+
 
 
 
