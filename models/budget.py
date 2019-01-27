@@ -51,18 +51,16 @@ class Account():
 
     def add_transaction(self, comment, transaction_type, amount):
         """Record a transaction on the account transaction history and update the current balance"""
-        try:
-            self.update_current_balance(transaction_type, amount)
-        except TypeError:
-            print('Amount must be a number')
-        else:
-            date = datetime.now().strftime('%Y-%m-%d')
-            transaction = [(date, self.name, comment, transaction_type, amount)]
-            labels = ['date', 'name', 'comment', 'transaction_type', 'amount']
-            tx_df = DataFrame.from_records(transaction, columns=labels)
-            conn = connect('data/budget.db')
-            tx_df.to_sql("transaction_history", conn, if_exists='append', index=False)
-            conn.close()
+        self.update_current_balance(transaction_type, amount)
+
+        date = datetime.now().strftime('%Y-%m-%d')
+        transaction = [(date, self.name, comment, transaction_type, amount)]
+        labels = ['date', 'name', 'comment', 'transaction_type', 'amount']
+        tx_df = DataFrame.from_records(transaction, columns=labels)
+        
+        conn = connect('data/budget.db')
+        tx_df.to_sql("transaction_history", conn, if_exists='append', index=False)
+        conn.close()
         
 class Budget():
     """A bi-weekly personal budget
@@ -73,41 +71,7 @@ class Budget():
 
     def __init__(self, accounts = {}):
         self.accounts = accounts
-
-    def add_account(self, **kwargs):
-        """Add an account to the existing budget accounts"""
-        new_account = kwargs['name']
-        self.accounts[new_account] = Account(**kwargs)
-        new_account_obj = self.accounts[new_account]
-        insert_account = [( 
-            new_account_obj.category,
-            new_account_obj.name,
-            new_account_obj.budgeted_amount,
-            new_account_obj.current_balance
-            )]
-        labels = ['category', 'name', 'budgeted_amount', 'current_balance']
-        insert_df = DataFrame.from_records(insert_account, columns=labels)
-        conn = connect('data/budget.db')
-        insert_df.to_sql("budget_summary", conn, if_exists='append', index=False)
-        conn.close()
-
-    def transfer_money(self, origin, destination, amount):
-        """Transfer a part of the balance from one account to another"""
-        try:
-            self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
-        except KeyError:
-            print(f'{origin} is not an account in the budget')
-        try:
-            self.accounts[destination].add_transaction(f'Transfer from {origin}', 'credit', amount)
-        except KeyError:
-            print(f'{destination} is not an account in the budget')
-
-    def payday(self):
-        """Add the budgeted amount to each account's current balance"""
-        for account in self.accounts:
-            account_obj = self.accounts[account]
-            account_obj.add_transaction('Payday', 'credit', account_obj.budgeted_amount)
-
+      
     def display_summary(self):
         """Display the current balance compared to the budgeted amount for each account"""
         conn = connect('data/budget.db')
@@ -166,4 +130,78 @@ class Budget():
         print()
         print(display_df)
         print()
-        
+    
+    def user_select_account(self):
+        """Prompt user to select an account from list of current accounts"""
+        account = ''
+        while account not in self.accounts.keys():
+            print(self.display_accounts())
+            account = input('Choose one of the above accounts: ')
+        return account
+    
+    def user_add_transaction(self):
+        """Allow user to add a new transaction"""
+        account = self.user_select_account()
+        while True:
+            try:
+                amount = int(input('Transaction amount: '))
+            except ValueError:
+                print('Transaction amount must be an integer')
+                continue
+            else:
+                break
+        comment = input('Transaction comment: ')
+        self.accounts[account].add_transaction(comment, 'debit', amount)
+        self.display_summary()
+
+    def add_account(self, **kwargs):
+        """Add an account to the existing budget accounts"""
+        new_account = kwargs['name']
+        self.accounts[new_account] = Account(**kwargs)
+        new_account_obj = self.accounts[new_account]
+        insert_account = [( 
+            new_account_obj.category,
+            new_account_obj.name,
+            new_account_obj.budgeted_amount,
+            new_account_obj.current_balance
+            )]
+        labels = ['category', 'name', 'budgeted_amount', 'current_balance']
+        insert_df = DataFrame.from_records(insert_account, columns=labels)
+        conn = connect('data/budget.db')
+        insert_df.to_sql("budget_summary", conn, if_exists='append', index=False)
+        conn.close()
+    
+    def user_add_account(self):
+        """Allow user to add account to budget """
+        name = input("Name of this account: ")
+        category = input(f"What category does {name} fall under?: ")
+        while True:
+            try:
+                budgeted_amount = int(input(f"How much would you like to budget for {name}: "))
+            except ValueError:
+                print('Budgeted amount must be an integer')
+                continue
+            else:
+                break
+        self.add_account(
+            name = name, category = category,
+            budgeted_amount = budgeted_amount,
+            current_balance = budgeted_amount)
+        self.display_summary()
+
+    def transfer_money(self, origin, destination, amount):
+        """Transfer a part of the balance from one account to another"""
+        try:
+            self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
+        except KeyError:
+            print(f'{origin} is not an account in the budget')
+        try:
+            self.accounts[destination].add_transaction(f'Transfer from {origin}', 'credit', amount)
+        except KeyError:
+            print(f'{destination} is not an account in the budget')
+
+    def payday(self):
+        """Add the budgeted amount to each account's current balance"""
+        for account in self.accounts:
+            account_obj = self.accounts[account]
+            account_obj.add_transaction('Payday', 'credit', account_obj.budgeted_amount)
