@@ -126,10 +126,10 @@ class Budget():
         print()
     
     @staticmethod
-    def ensure_positive_integer_from_user():
+    def ensure_positive_integer_from_user(prompt):
         while True:
             try:
-                num_input = int(input('Please enter an amount: '))
+                num_input = int(input(f'{prompt}: '))
             except ValueError:
                 print('Numbers only please :-)')
                 continue
@@ -140,6 +140,17 @@ class Budget():
             else:
                 break
         return num_input
+
+    @staticmethod
+    def expect_yes_or_no_answer(question):
+        answer = ''
+        while answer not in ['yes', 'no']:
+            answer = input(f'{question}?: ').lower()
+        return answer
+
+    @staticmethod
+    def user_exit_program():
+        raise SystemExit
 
     def user_select_account(self):
         """Prompt user to select an account from list of current accounts"""
@@ -152,7 +163,7 @@ class Budget():
     def user_add_transaction(self):
         """Allow user to add a new transaction"""
         account = self.user_select_account()
-        amount = Budget.ensure_positive_integer_from_user()
+        amount = Budget.ensure_positive_integer_from_user('Transaction amount')
         comment = input('Transaction comment: ')
         self.accounts[account].add_transaction(comment, 'debit', amount)
         self.display_summary()
@@ -178,7 +189,7 @@ class Budget():
         """Allow user to add account to budget """
         name = input("Name of this account: ")
         category = input(f"What category does {name} fall under?: ")
-        budgeted_amount = Budget.ensure_positive_integer_from_user()
+        budgeted_amount = Budget.ensure_positive_integer_from_user('Budgeted amount')
         self.add_account(
             name = name, category = category,
             budgeted_amount = budgeted_amount,
@@ -190,7 +201,7 @@ class Budget():
         account = self.user_select_account()
         current_budgeted_amount = self.accounts[account].budgeted_amount
         print(f'The current budgeted amount for {account} is {current_budgeted_amount}')
-        new_budgeted_amount = Budget.ensure_positive_integer_from_user()
+        new_budgeted_amount = Budget.ensure_positive_integer_from_user('New budgeted amount:')
         self.accounts[account].update_budgeted_amount(new_budgeted_amount)
         self.display_summary()
 
@@ -201,7 +212,7 @@ class Budget():
 
     def user_transfer_between_accounts(self):
         """Allow user to transfer between accounts"""
-        transfer_amount = Budget.ensure_positive_integer_from_user()
+        transfer_amount = Budget.ensure_positive_integer_from_user('Transfer amount')
         from_account = self.user_select_account()
         to_account = self.user_select_account()
         self.transfer_between_accounts(from_account, to_account, transfer_amount)
@@ -209,13 +220,30 @@ class Budget():
 
     def user_add_income_to_account(self):
         account = self.user_select_account()
-        amount = Budget.ensure_positive_integer_from_user()
+        amount = Budget.ensure_positive_integer_from_user('Income amount')
         comment = input('Income comment: ')
         self.accounts[account].add_transaction(comment, 'credit', amount)
         self.display_summary()
 
-    def payday(self):
+    def record_payday(self):
         """Add the budgeted amount to each account's current balance"""
         for account in self.accounts:
             account_obj = self.accounts[account]
             account_obj.add_transaction('Payday', 'credit', account_obj.budgeted_amount)
+
+    def user_record_payday(self):
+        """Allow user to record a payday"""
+        confirm = Budget.expect_yes_or_no_answer('Are you sure you want to record a payday')
+        if confirm == 'yes':
+            print('$$$ *Cha-Ching* $$$')
+            self.record_payday()
+            self.display_summary()
+        elif confirm == 'no':
+            print()
+            pass
+    
+    def user_view_transaction_history(self):
+        """Allow user to view transaction history"""
+        transactions = Budget.ensure_positive_integer_from_user('Number of transactions')
+        account = self.user_select_account()
+        self.display_history(account, transactions)
