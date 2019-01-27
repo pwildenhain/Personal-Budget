@@ -1,5 +1,4 @@
 # Import modules
-from models.validate_user import ensure_positive_integer_from_user
 from datetime import datetime
 from sqlite3 import connect
 from pandas import DataFrame, read_sql
@@ -130,7 +129,7 @@ class Budget():
     def ensure_positive_integer_from_user():
         while True:
             try:
-                num_input = int(input('How much would you like to transfer: '))
+                num_input = int(input('Please enter an amount: '))
             except ValueError:
                 print('Numbers only please :-)')
                 continue
@@ -153,7 +152,7 @@ class Budget():
     def user_add_transaction(self):
         """Allow user to add a new transaction"""
         account = self.user_select_account()
-        amount = ensure_positive_integer_from_user()
+        amount = Budget.ensure_positive_integer_from_user()
         comment = input('Transaction comment: ')
         self.accounts[account].add_transaction(comment, 'debit', amount)
         self.display_summary()
@@ -179,7 +178,7 @@ class Budget():
         """Allow user to add account to budget """
         name = input("Name of this account: ")
         category = input(f"What category does {name} fall under?: ")
-        budgeted_amount = ensure_positive_integer_from_user()
+        budgeted_amount = Budget.ensure_positive_integer_from_user()
         self.add_account(
             name = name, category = category,
             budgeted_amount = budgeted_amount,
@@ -187,23 +186,33 @@ class Budget():
         self.display_summary()
 
     def user_update_budgeted_amount(self):
+        """Allow user to update budgeted amounts"""
         account = self.user_select_account()
         current_budgeted_amount = self.accounts[account].budgeted_amount
         print(f'The current budgeted amount for {account} is {current_budgeted_amount}')
-        new_budgeted_amount = ensure_positive_integer_from_user()
+        new_budgeted_amount = Budget.ensure_positive_integer_from_user()
         self.accounts[account].update_budgeted_amount(new_budgeted_amount)
         self.display_summary()
 
-    def transfer_money(self, origin, destination, amount):
+    def transfer_between_accounts(self, origin, destination, amount):
         """Transfer a part of the balance from one account to another"""
-        try:
-            self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
-        except KeyError:
-            print(f'{origin} is not an account in the budget')
-        try:
-            self.accounts[destination].add_transaction(f'Transfer from {origin}', 'credit', amount)
-        except KeyError:
-            print(f'{destination} is not an account in the budget')
+        self.accounts[origin].add_transaction(f'Transfer to {destination}', 'debit', amount)
+        self.accounts[destination].add_transaction(f'Transfer from {origin}', 'credit', amount)
+
+    def user_transfer_between_accounts(self):
+        """Allow user to transfer between accounts"""
+        transfer_amount = Budget.ensure_positive_integer_from_user()
+        from_account = self.user_select_account()
+        to_account = self.user_select_account()
+        self.transfer_between_accounts(from_account, to_account, transfer_amount)
+        self.display_summary()
+
+    def user_add_income_to_account(self):
+        account = self.user_select_account()
+        amount = Budget.ensure_positive_integer_from_user()
+        comment = input('Income comment: ')
+        self.accounts[account].add_transaction(comment, 'credit', amount)
+        self.display_summary()
 
     def payday(self):
         """Add the budgeted amount to each account's current balance"""
