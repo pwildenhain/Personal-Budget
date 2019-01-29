@@ -112,6 +112,8 @@ class Budget():
         transaction_history 
         WHERE
         comment != 'Payday'
+        and
+        comment NOT LIKE 'Transfer%'
         {filter_account}
         ORDER BY
         date DESC
