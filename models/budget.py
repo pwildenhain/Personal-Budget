@@ -143,10 +143,13 @@ class Budget():
 
     @staticmethod
     def expect_yes_or_no_answer(question):
-        answer = ''
-        while answer not in ['yes', 'no']:
-            answer = input(f'{question}?: ').lower()
-        return answer
+        """Ask user a yes or no question, return a boolean value"""
+        yes_or_no = ''
+        yn_bool_dict = {'yes' : True, 'no' : False}
+        while yes_or_no not in ['yes', 'no']:
+            yes_or_no = input(f'{question}?: ').lower()
+            bool_yn = yn_bool_dict[yes_or_no]
+        return bool_yn
 
     @staticmethod
     def user_exit_program():
@@ -235,14 +238,11 @@ class Budget():
 
     def user_record_payday(self):
         """Allow user to record a payday"""
-        confirm = Budget.expect_yes_or_no_answer('Are you sure you want to record a payday')
-        if confirm == 'yes':
+        user_is_sure = Budget.expect_yes_or_no_answer('Are you sure you want to record a payday')
+        if user_is_sure:
             print('$$$ *Cha-Ching* $$$')
             self.record_payday()
             self.display_summary()
-        elif confirm == 'no':
-            print()
-            pass
     
     def delete_account(self, account):
         conn = connect('data/budget.db')
@@ -254,13 +254,13 @@ class Budget():
 
     def user_delete_account(self):
         account = self.user_select_account()
-        confirm = self.expect_yes_or_no_answer(f'Are you sure you want to delete {account}')
-        if confirm == 'yes':
+        user_is_sure = self.expect_yes_or_no_answer(f'Are you sure you want to delete {account}')
+        if user_is_sure:
             budgeted_amount = self.accounts[account].budgeted_amount
             current_balance = self.accounts[account].current_balance
             print(f'{account} had ${budgeted_amount} budgeted and ${current_balance} in the balance')
             self.delete_account(account)
-        self.display_summary()
+            self.display_summary()
 
     def user_view_transaction_history(self):
         """Allow user to view transaction history"""
