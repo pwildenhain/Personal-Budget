@@ -25,6 +25,7 @@ user_actions = [
     budget.user_add_income_to_account,
     budget.user_record_payday,
     budget.user_view_transaction_history,
+    budget.user_delete_account,
     Budget.user_exit_program
 ]
 
