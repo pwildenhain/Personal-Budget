@@ -14,7 +14,6 @@ except OperationalError:
     budget_already_exists = False
 else:
     budget_already_exists = True
-conn.close()
 
 if budget_already_exists:
     print("Looks like a budget already exists")
@@ -24,7 +23,34 @@ if budget_already_exists:
             'Would you like to overwrite the existing budget? Type yes or no: '
         ).lower() 
     if overwrite_existing == 'no':
+        conn.close()
         raise SystemExit
+# Initialize tables
+cursor.execute('''
+DROP TABLE IF EXISTS budget_summary 
+''')
+cursor.execute('''
+CREATE TABLE budget_summary (
+category text
+, name text
+, budgeted_amount integer
+, current_balance integer
+)
+''')
+cursor.execute('''
+DROP TABLE IF EXISTS transaction_history
+''')
+cursor.execute('''
+CREATE TABLE transaction_history (
+date real
+, name text
+, transaction_type text
+, comment tex
+, amount integer
+)
+''')
+conn.commit()
+conn.close()
 # Initialize budget
 budget = Budget()
 print("Let's add some accounts to your personal budget")
