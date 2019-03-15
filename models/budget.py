@@ -47,7 +47,7 @@ class Account():
         """Record a transaction on the account transaction history and update the current balance"""
         self.update_current_balance(transaction_type, amount)
 
-        date = datetime.now().strftime('%Y-%m-%d')
+        date = datetime.now().strftime('%m/%d/%Y %I:%M:%S %p')
         transaction = [(date, self.name, comment, transaction_type, amount)]
         labels = ['date', 'name', 'comment', 'transaction_type', 'amount']
         tx_df = DataFrame.from_records(transaction, columns=labels)
