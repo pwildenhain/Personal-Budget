@@ -1,7 +1,10 @@
 # Imports
 from models.budget import Account, Budget
 from sqlite3 import connect, OperationalError
+from os import path, makedirs
 # Check for existing budget
+if not path.exists('data'):
+    makedirs('data')
 conn = connect('data/budget.db')
 cursor = conn.cursor()
 # If a table already exists, take note and ask if they want to overwrite
@@ -37,7 +40,8 @@ while True:
             continue
         else:
             break
-    budget.add_account(name = name, category = category, budgeted_amount = budgeted_amount)
+    budget.add_account(name = name, category = category, budgeted_amount = budgeted_amount,
+    current_balance = budgeted_amount)
     # Ask for another
     add_another = ''
     while add_another not in ['yes', 'no']:
