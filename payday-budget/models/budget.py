@@ -2,6 +2,7 @@
 from datetime import datetime
 from sqlite3 import connect
 from pandas import DataFrame, read_sql
+from utils.user import ensure_positive_integer_from_user, expect_yes_or_no_answer
 # Define classes
 class Account():
     """An account within a personal budget
@@ -126,36 +127,6 @@ class Budget():
         print()
         print(display_df)
         print()
-    
-    @staticmethod
-    def ensure_positive_integer_from_user(prompt):
-        while True:
-            try:
-                num_input = int(input(f'{prompt}: '))
-            except ValueError:
-                print('Numbers only please :-)')
-                continue
-            
-            if num_input < 0:
-                print('Positive numbers only please ;-)')
-                continue
-            else:
-                break
-        return num_input
-
-    @staticmethod
-    def expect_yes_or_no_answer(question):
-        """Ask user a yes or no question, return a boolean value"""
-        yes_or_no = ''
-        yn_bool_dict = {'yes' : True, 'no' : False}
-        while yes_or_no not in ['yes', 'no']:
-            yes_or_no = input(f'{question}?: ').lower()
-            bool_yn = yn_bool_dict[yes_or_no]
-        return bool_yn
-
-    @staticmethod
-    def user_exit_program():
-        raise SystemExit
 
     def user_select_account(self):
         """Prompt user to select an account from list of current accounts"""
@@ -168,7 +139,7 @@ class Budget():
     def user_add_transaction(self):
         """Allow user to add a new transaction"""
         account = self.user_select_account()
-        amount = Budget.ensure_positive_integer_from_user('Transaction amount')
+        amount = ensure_positive_integer_from_user('Transaction amount')
         comment = input('Transaction comment: ')
         self.accounts[account].add_transaction(comment, 'debit', amount)
         self.display_summary()
@@ -194,7 +165,7 @@ class Budget():
         """Allow user to add account to budget """
         name = input("Name of this account: ")
         category = input(f"What category does {name} fall under?: ")
-        budgeted_amount = Budget.ensure_positive_integer_from_user('Budgeted amount')
+        budgeted_amount = ensure_positive_integer_from_user('Budgeted amount')
         self.add_account(
             name = name, category = category,
             budgeted_amount = budgeted_amount,
@@ -206,7 +177,7 @@ class Budget():
         account = self.user_select_account()
         current_budgeted_amount = self.accounts[account].budgeted_amount
         print(f'The current budgeted amount for {account} is {current_budgeted_amount}')
-        new_budgeted_amount = Budget.ensure_positive_integer_from_user('New budgeted amount')
+        new_budgeted_amount = ensure_positive_integer_from_user('New budgeted amount')
         self.accounts[account].update_budgeted_amount(new_budgeted_amount)
         self.display_summary()
 
@@ -217,7 +188,7 @@ class Budget():
 
     def user_transfer_between_accounts(self):
         """Allow user to transfer between accounts"""
-        transfer_amount = Budget.ensure_positive_integer_from_user('Transfer amount')
+        transfer_amount = ensure_positive_integer_from_user('Transfer amount')
         print('Transfer from:')
         from_account = self.user_select_account()
         print('Transfer to:')
@@ -227,7 +198,7 @@ class Budget():
 
     def user_add_income_to_account(self):
         account = self.user_select_account()
-        amount = Budget.ensure_positive_integer_from_user('Income amount')
+        amount = ensure_positive_integer_from_user('Income amount')
         comment = input('Income comment: ')
         self.accounts[account].add_transaction(comment, 'credit', amount)
         self.display_summary()
@@ -240,7 +211,7 @@ class Budget():
 
     def user_record_payday(self):
         """Allow user to record a payday"""
-        user_is_sure = Budget.expect_yes_or_no_answer('Are you sure you want to record a payday')
+        user_is_sure = expect_yes_or_no_answer('Are you sure you want to record a payday')
         if user_is_sure:
             print('$$$ *Cha-Ching* $$$')
             self.record_payday()
@@ -256,7 +227,7 @@ class Budget():
 
     def user_delete_account(self):
         account = self.user_select_account()
-        user_is_sure = self.expect_yes_or_no_answer(f'Are you sure you want to delete {account}')
+        user_is_sure = expect_yes_or_no_answer(f'Are you sure you want to delete {account}')
         if user_is_sure:
             budgeted_amount = self.accounts[account].budgeted_amount
             current_balance = self.accounts[account].current_balance
@@ -266,6 +237,6 @@ class Budget():
 
     def user_view_transaction_history(self):
         """Allow user to view transaction history"""
-        transactions = Budget.ensure_positive_integer_from_user('Number of transactions')
+        transactions = ensure_positive_integer_from_user('Number of transactions')
         account = self.user_select_account()
         self.display_history(account, transactions)

@@ -1,5 +1,6 @@
 # Imports
 from models.budget import Account, Budget
+from utils.user import ensure_positive_integer_from_user, user_exit_program
 from sqlite3 import connect
 from pandas import DataFrame, read_sql
 # Load data from SQLite budget_summary table
@@ -26,7 +27,7 @@ user_actions = [
     budget.user_record_payday,
     budget.user_view_transaction_history,
     budget.user_delete_account,
-    Budget.user_exit_program
+    user_exit_program
 ]
 
 user_action_names = []
@@ -38,7 +39,7 @@ while True:
     for num, action in enumerate(user_action_names):
         print(f'{num}) {action}')
 
-    choice = Budget.ensure_positive_integer_from_user('Select an option')
+    choice = ensure_positive_integer_from_user('Select an option')
 
     if choice in range(len(user_action_names)):
         chosen_func = user_actions[choice]
