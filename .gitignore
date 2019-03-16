@@ -108,3 +108,4 @@ venv.bak/
 
 # scratch code
 scratch.py
+.vscode/settings.json
