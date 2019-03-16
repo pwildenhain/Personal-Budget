@@ -2,7 +2,7 @@
 from datetime import datetime
 from sqlite3 import connect
 from pandas import DataFrame, read_sql
-from utils.user import ensure_positive_integer_from_user, expect_yes_or_no_answer
+from payday_budget.utils.user import ensure_positive_integer_from_user, expect_yes_or_no_answer
 # Define classes
 class Account():
     """An account within a personal budget

@@ -1,11 +1,12 @@
 # Imports
-from models.budget import Account, Budget
-from utils.user import ensure_positive_integer_from_user, user_exit_program
+from payday_budget.models.budget import Account, Budget
+from payday_budget.utils.user import ensure_positive_integer_from_user, user_exit_program
 from sqlite3 import connect, OperationalError
 from pandas import DataFrame, read_sql
 from os import path, makedirs
 
 def create_budget():
+    """Load an interactive session for user to create/overwrite a budget"""
     # Check for existing budget
     if not path.exists('data'):
         makedirs('data')
@@ -82,6 +83,7 @@ def create_budget():
             break
     
 def update_budget():
+    """Load an interactive session for user to update budget"""
     # Load data from SQLite budget_summary table
     conn = connect('data/budget.db')
     accounts = read_sql('SELECT * FROM budget_summary', conn)
