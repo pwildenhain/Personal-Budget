@@ -1,8 +1,8 @@
-# Personal-Budget
+# payday-budget
 
 ## Inspiration
 
-I built this personal budget to track finances the way **I** want. All other tools don't meet my needs such as:
+I built this budget tool to track finances the way **I** want. All other tools don't meet my needs such as:
 
 * Budgeting per payday cycle
 * Rolling balances that _accumulate_, not reset when a new cycle begins
